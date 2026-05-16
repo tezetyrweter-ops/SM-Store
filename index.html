@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SM Store</title>
+<link rel="icon" type="image/png" href="storecon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --bg:#0e0f11;
+  --surface:#18191d;
+  --surface2:#1f2025;
+  --accent:#0074e4;
+  --accent2:#00d4ff;
+  --gold:#f5c518;
+  --text:#ffffff;
+  --text2:#a0a4b8;
+  --text3:#5a5e72;
+  --green:#00e676;
+  --border:rgba(255,255,255,0.07);
+}
+
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cairo', sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+a{text-decoration:none;color:inherit;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:64px;
+  background:rgba(14,15,17,0.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:background .3s;
+}
+
+.nav-logo{
+  font-family:'Rajdhani',sans-serif;
+  font-size:22px;font-weight:700;letter-spacing:2px;
+  color:var(--text);
+  display:flex;align-items:center;gap:10px;
+}
+
+.nav-logo::before{
+  content:'';width:28px;height:28px;
+  background:var(--accent);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:block;
+}
+
+.nav-links{display:flex;align-items:center;gap:8px;}
+
+.nav-links a{
+  padding:8px 16px;border-radius:6px;
+  font-size:14px;font-weight:600;color:var(--text2);
+  transition:.2s;letter-spacing:.5px;
+}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.06);}
+.nav-links a.active{color:var(--text);}
+
+.nav-cta{
+  background:var(--accent);color:#fff;
+  padding:9px 22px;border-radius:6px;
+  font-size:14px;font-weight:700;letter-spacing:.5px;
+  transition:.2s;
+}
+.nav-cta:hover{background:#0088ff;color:#fff;}
+
+/* ── HERO ── */
+.hero{
+  position:relative;height:600px;
+  display:flex;align-items:flex-end;
+  overflow:hidden;margin-top:64px;
+}
+
+.hero-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,#0a0c18 0%,#0d1a3a 50%,#0a0c18 100%);
+}
+
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,116,228,0.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,116,228,0.08) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse at center,black 40%,transparent 80%);
+}
+
+.hero-glow{
+  position:absolute;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(0,116,228,0.15) 0%,transparent 70%);
+  top:-100px;left:50%;transform:translateX(-50%);
+  pointer-events:none;
+}
+
+.hero-content{
+  position:relative;z-index:2;
+  padding:60px 48px;max-width:600px;
+}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,116,228,0.15);border:1px solid rgba(0,116,228,0.4);
+  padding:6px 14px;border-radius:4px;margin-bottom:20px;
+  font-size:12px;font-weight:700;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;
+}
+
+.hero-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+.hero h1{
+  font-family:'Rajdhani',sans-serif;
+  font-size:72px;font-weight:700;line-height:.95;
+  letter-spacing:-2px;margin-bottom:20px;
+}
+
+.hero h1 span{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.hero p{font-size:17px;color:var(--text2);line-height:1.7;max-width:460px;margin-bottom:32px;}
+
+.hero-btns{display:flex;gap:12px;}
+
+.btn-primary{
+  background:var(--accent);color:#fff;
+  padding:14px 32px;border-radius:6px;
+  font-size:15px;font-weight:700;letter-spacing:.5px;
+  transition:.25s;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{background:#0088ff;transform:translateY(-2px);}
+
+.btn-outline{
+  background:transparent;color:var(--text);
+  border:1px solid rgba(255,255,255,0.2);
+  padding:14px 28px;border-radius:6px;
+  font-size:15px;font-weight:600;
+  transition:.25s;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-outline:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);}
+
+/* ── SECTION ── */
+.section{padding:64px 48px;}
+
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:32px;
+}
+
+.section-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:26px;font-weight:700;letter-spacing:.5px;
+  display:flex;align-items:center;gap:12px;
+}
+
+.section-title::before{
+  content:'';width:4px;height:26px;
+  background:linear-gradient(var(--accent),var(--accent2));
+  border-radius:2px;display:block;
+}
+
+.section-link{
+  font-size:13px;font-weight:600;color:var(--accent2);
+  letter-spacing:.5px;display:flex;align-items:center;gap:4px;
+  transition:.2s;
+}
+.section-link:hover{color:var(--text);}
+
+/* ── FILTERS ── */
+.filters{
+  display:flex;gap:8px;margin-bottom:32px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:0;
+}
+
+.filter-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--text2);font-size:14px;font-weight:600;font-family:'Cairo',sans-serif;
+  padding:10px 20px;border-bottom:2px solid transparent;
+  transition:.2s;margin-bottom:-1px;letter-spacing:.3px;
+}
+.filter-btn:hover{color:var(--text);}
+.filter-btn.active{color:var(--text);border-bottom-color:var(--accent);}
+
+/* ── GAME CARDS GRID ── */
+#games{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:var(--surface);
+  border-radius:10px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.3s cubic-bezier(.25,.46,.45,.94);
+  border:1px solid var(--border);
+  position:relative;
+}
+
+.card:hover{
+  transform:translateY(-6px);
+  border-color:rgba(0,116,228,0.4);
+  box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(0,116,228,0.15);
+}
+
+.card-img{
+  width:100%;height:180px;object-fit:cover;
+  display:block;transition:.3s;
+  background:#111;
+}
+
+.card:hover .card-img{transform:scale(1.04);}
+
+.card-img-wrap{overflow:hidden;position:relative;}
+
+.card-badge{
+  position:absolute;top:10px;right:10px;
+  padding:4px 10px;border-radius:4px;
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+}
+
+.card-badge.steam{background:rgba(27,40,56,0.95);color:#66c0f4;border:1px solid rgba(102,192,244,0.3);}
+.card-badge.torrent{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+
+.card-body{padding:16px;}
+
+.card-name{
+  font-size:16px;font-weight:700;margin-bottom:6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+.card-desc{
+  font-size:13px;color:var(--text2);line-height:1.5;
+  height:38px;overflow:hidden;margin-bottom:14px;
+}
+
+.card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+}
+
+.card-price{
+  font-family:'Rajdhani',sans-serif;
+  font-size:22px;font-weight:700;color:var(--accent2);
+}
+
+.buy-btn{
+  background:var(--accent);color:#fff;border:none;
+  padding:8px 18px;border-radius:5px;
+  font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;
+  cursor:pointer;transition:.2s;letter-spacing:.3px;
+}
+.buy-btn:hover{background:#0088ff;}
+
+/* ── STATS BAR ── */
+.stats-bar{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  margin:0 48px 48px;
+  overflow:hidden;
+}
+
+.stat{
+  padding:28px 32px;
+  border-left:1px solid var(--border);
+  text-align:center;
+}
+.stat:last-child{border-left:none;}
+
+.stat-num{
+  font-family:'Rajdhani',sans-serif;
+  font-size:36px;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  display:block;margin-bottom:4px;
+}
+.stat-label{font-size:13px;color:var(--text2);font-weight:600;letter-spacing:.5px;}
+
+/* ── EMPTY STATE ── */
+.empty{
+  text-align:center;padding:80px 20px;color:var(--text3);
+}
+.empty svg{margin-bottom:16px;opacity:.3;}
+.empty p{font-size:16px;}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  padding:32px 48px;margin-top:80px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.footer-logo{
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px;font-weight:700;letter-spacing:2px;color:var(--text2);
+}
+.footer-copy{font-size:13px;color:var(--text3);}
+
+/* ── LOADING ── */
+.skeleton{
+  background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);
+  background-size:200%;
+  animation:shimmer 1.5s infinite;
+  border-radius:10px;
+}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  .hero{height:auto;padding-top:32px;}
+  .hero-content{padding:40px 20px;}
+  .hero h1{font-size:48px;}
+  .section{padding:40px 20px;}
+  .stats-bar{margin:0 20px 40px;grid-template-columns:1fr;}
+  .stat{border-left:none;border-bottom:1px solid var(--border);}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:24px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">SM Store</div>
+  <div class="nav-links">
+    <a href="index.html" class="active">المتجر</a>
+    <a href="library.html">مكتبتي</a>
+    <a href="auth.html" id="accountLink" class="nav-cta">حسابي</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">المتجر الرسمي</div>
+    <h1>ملفات.<br><span>أفضل</span> سعر.</h1>
+    <p>اكتشف أضخم مكتبة ملفات بأفضل الأسعار. ملفات جاهزة وسكريبتات حصرية.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="scrollToGames()">
+        تصفح ملفات
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-outline" onclick="location.href='library.html'">مكتبتي</button>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><span class="stat-num" id="s1">—</span><span class="stat-label">لعبة متاحة</span></div>
+  <div class="stat"><span class="stat-num">0$</span><span class="stat-label">رصيد مجاني عند التسجيل</span></div>
+  <div class="stat"><span class="stat-num">24/7</span><span class="stat-label">دعم مستمر</span></div>
+</div>
+
+<!-- GAMES SECTION -->
+<section class="section" id="games-section">
+  <div class="section-header">
+    <h2 class="section-title">ملفات المتاحة</h2>
+    <a class="section-link">
+      عرض الكل
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterGames('all',this)">الكل</button>
+    <button class="filter-btn" onclick="filterGames('steam',this)">ملفات جاهزة</button>
+    <button class="filter-btn" onclick="filterGames('torrent',this)">سكريبتات</button>
+  </div>
+
+  <div id="games"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">SM Store</div>
+  <div class="footer-copy">&copy; 2026 SM Store — كل الحقوق محفوظة</div>
+</footer>
+
+<script>
+// Account link
+const uid = localStorage.getItem("uid");
+const accountLink = document.getElementById("accountLink");
+if(uid){ accountLink.href="profile.html"; accountLink.textContent="حسابي"; }
+
+function scrollToGames(){
+  document.getElementById("games-section").scrollIntoView({behavior:"smooth"});
+}
+
+// Fetch games
+const gamesContainer = document.getElementById("games");
+let allGames = [];
+
+db.ref("games").once("value").then(snap=>{
+  snap.forEach(gSnap=>{ allGames.push({id:gSnap.key,...gSnap.val()}); });
+  document.getElementById("s1").textContent = allGames.length;
+  displayGames("all");
+});
+
+function displayGames(category){
+  gamesContainer.innerHTML="";
+  const filtered = category==="all" ? allGames : allGames.filter(g=>g.category===category);
+
+  if(filtered.length===0){
+    gamesContainer.innerHTML=`<div class="empty"><p>لا توجد ألعاب في هذا القسم</p></div>`;
+    return;
+  }
+
+  filtered.forEach((game,i)=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.animationDelay=i*0.05+"s";
+
+    const badgeClass = game.category==="steam"?"steam":"torrent";
+    const badgeText = game.category==="steam"?"ملفات جاهزة":"سكريبت";
+
+    card.innerHTML=`
+      <div class="card-img-wrap">
+        <img class="card-img" src="${game.coverImage||'placeholder.png'}" alt="${game.name}" loading="lazy">
+        <span class="card-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${game.name}</div>
+        <div class="card-desc">${game.description?game.description.substring(0,80)+"...":""}</div>
+        <div class="card-footer">
+          <span class="card-price">${game.price}$</span>
+          <button class="buy-btn" onclick="buyGame('${game.id}')">شراء</button>
+        </div>
+      </div>
+    `;
+
+    gamesContainer.appendChild(card);
+  });
+}
+
+function filterGames(category, btn){
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  displayGames(category);
+}
+
+function buyGame(gameId){
+  localStorage.setItem("buyGame",gameId);
+  window.location.href="game.html?id="+gameId;
+}
+
+// Navbar scroll effect
+window.addEventListener("scroll",()=>{
+  document.getElementById("navbar").style.background =
+    scrollY>20?"rgba(14,15,17,0.97)":"rgba(14,15,17,0.92)";
+});
+</script>
+</body>
+</html>
